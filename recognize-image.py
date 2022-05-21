@@ -16,14 +16,14 @@ def segment(image, grayimage, threshold=75):
     thresholded = cv2.threshold(grayimage, threshold, 255, cv2.THRESH_BINARY)[1]
 
     # get the contours in the thresholded image
-    (_, cnts, _) = cv2.findContours(thresholded.copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+    contours, hierarchy  = cv2.findContours(thresholded.copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
 
     # return None, if no contours detected
-    if len(cnts) == 0:
+    if len(contours) == 0:
         return
     else:     
         # based on contour area, get the maximum contour which is the hand
-        segmented = max(cnts, key=cv2.contourArea)
+        segmented = max(contours, key=cv2.contourArea)
         
         return (thresholded, segmented)
 
@@ -67,7 +67,7 @@ def count(image, thresholded, segmented):
     circular_roi = cv2.bitwise_and(thresholded, thresholded, mask=circular_roi)
 
     # compute the contours in the circular ROI
-    (_, cnts, _) = cv2.findContours(circular_roi.copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)
+    contours, hierarchy = cv2.findContours(circular_roi.copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)
 
     count = 0
     # approach 1 - eliminating wrist
@@ -76,7 +76,7 @@ def count(image, thresholded, segmented):
 
     # approach 2 - eliminating wrist
     # loop through the contours found
-    for i, c in enumerate(cnts):
+    for i, c in enumerate(contours):
 
         # compute the bounding box of the contour
         (x, y, w, h) = cv2.boundingRect(c)
