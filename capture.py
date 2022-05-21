@@ -123,7 +123,8 @@ if __name__ == "__main__":
 
     # calibration indicator
     calibrated = False
-    hand_queue = [0] * 10
+    queue_size = 50
+    hand_queue = [0] * queue_size
     mode = 0
     # keep looping, until interrupted
     while(True):
@@ -171,42 +172,58 @@ if __name__ == "__main__":
                 
                 # count the number of fingers
                 fingers = count(thresholded, segmented)
+                cv2.putText(clone, str(fingers), (70, 45), cv2.FONT_HERSHEY_SIMPLEX, 1, (0,0,255), 2)
+                # draw the segmented region and display the frame
+                cv2.drawContours(clone, [segmented + (right, top)], -1, (0, 0, 255))
+                
 
-                hand_queue[num_frames%10] = fingers
+                hand_queue[num_frames%queue_size] = fingers
 
 
-        if hand_queue.count(1) >= 5:
+        if hand_queue.count(1) >= queue_size//2:
             mode = 1
-        elif hand_queue.count(2) >= 5:
+        elif hand_queue.count(2) >= queue_size//2:
             mode = 2
-        elif hand_queue.count(3) >= 5:
+        elif hand_queue.count(3) >= queue_size//2:
             mode = 3
-        elif hand_queue.count(4) >= 5:
+        elif hand_queue.count(4) >= queue_size//2:
             mode = 4
-        elif hand_queue.count(5) >= 5:
+        elif hand_queue.count(5) >= queue_size//2:
             mode = 5
-
-        if mode == 0:
-            # 原圖
-            
-
-            # display the frame with segmented hand
-            cv2.imshow("Video Feed", clone)
-        elif mode == 1:
+        # print(mode)
+        result = clone.copy()
+        if mode == 1:
             # 灰階
+            result = cv2.cvtColor(result, cv2.COLOR_BGR2GRAY)
         elif mode == 2:
             # 加貼圖  
+            pass
         elif mode == 3:
             # segment
-            # draw the segmented hand
-            cv2.rectangle(clone, (left, top), (right, bottom), (0,255,0), 2)
+            gray = cv2.cvtColor(clone, cv2.COLOR_BGR2GRAY)
+            gray = cv2.GaussianBlur(gray, (7, 7), 0)
 
-            # draw the segmented region and display the frame
-            cv2.drawContours(clone, [segmented + (right, top)], -1, (0, 0, 255))
+
+            # threshold the diff image so that we get the foreground
+            thresholded = cv2.threshold(gray, 50, 255, cv2.THRESH_BINARY)[1]
+
+            result = thresholded    
         elif mode == 4:
             # hsv
+            pass
         elif mode == 5:
             # 負片 
+            pass
+        # draw the segmented hand
+        cv2.rectangle(clone, (left, top), (right, bottom), (0,255,0), 2)
+        # display the frame with segmented hand
+        cv2.imshow("Video Feed", clone)
+
+        cv2.imshow("Result", result)
+        
+
+
+        
         
         # increment the number of frames
         num_frames += 1
