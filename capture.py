@@ -188,11 +188,7 @@ if __name__ == "__main__":
 
         if mode == 0:
             # 原圖
-            # draw the segmented hand
-            cv2.rectangle(clone, (left, top), (right, bottom), (0,255,0), 2)
-
-            # increment the number of frames
-            num_frames += 1
+            
 
             # display the frame with segmented hand
             cv2.imshow("Video Feed", clone)
@@ -202,6 +198,9 @@ if __name__ == "__main__":
             # 加貼圖  
         elif mode == 3:
             # segment
+            # draw the segmented hand
+            cv2.rectangle(clone, (left, top), (right, bottom), (0,255,0), 2)
+
             # draw the segmented region and display the frame
             cv2.drawContours(clone, [segmented + (right, top)], -1, (0, 0, 255))
         elif mode == 4:
@@ -209,7 +208,8 @@ if __name__ == "__main__":
         elif mode == 5:
             # 負片 
         
-        
+        # increment the number of frames
+        num_frames += 1
 
         # observe the keypress by the user
         keypress = cv2.waitKey(1) & 0xFF
