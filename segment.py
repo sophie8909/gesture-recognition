@@ -61,6 +61,8 @@ if __name__ == "__main__":
     # initialize num of frames
     num_frames = 0
 
+
+    hand_queue = []
     # keep looping, until interrupted
     while(True):
         # get the current frame
@@ -102,7 +104,7 @@ if __name__ == "__main__":
                 # draw the segmented region and display the frame
                 cv2.drawContours(clone, [segmented + (right, top)], -1, (0, 0, 255))
                 cv2.imshow("Thesholded", thresholded)
-
+                hand_queue.append(hand)
         # draw the segmented hand
         cv2.rectangle(clone, (left, top), (right, bottom), (0,255,0), 2)
 

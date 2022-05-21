@@ -123,7 +123,8 @@ if __name__ == "__main__":
 
     # calibration indicator
     calibrated = False
-
+    hand_queue = [0] * 10
+    mode = 0
     # keep looping, until interrupted
     while(True):
         # get the current frame
@@ -148,6 +149,7 @@ if __name__ == "__main__":
         gray = cv2.cvtColor(roi, cv2.COLOR_BGR2GRAY)
         gray = cv2.GaussianBlur(gray, (7, 7), 0)
 
+
         # to get the background, keep looking till a threshold is reached
         # so that our weighted average model gets calibrated
         if num_frames < 30:
@@ -166,23 +168,48 @@ if __name__ == "__main__":
                 # segmented region
                 (thresholded, segmented) = hand
 
-                # draw the segmented region and display the frame
-                cv2.drawContours(clone, [segmented + (right, top)], -1, (0, 0, 255))
-
+                
                 # count the number of fingers
                 fingers = count(thresholded, segmented)
 
-                if fingers == 5:
-                    cv2.imwrite("./photo/{}.png".format(fingers), frame)
+                hand_queue[num_frames%10] = fingers
 
-        # draw the segmented hand
-        cv2.rectangle(clone, (left, top), (right, bottom), (0,255,0), 2)
 
-        # increment the number of frames
-        num_frames += 1
+        if hand_queue.count(1) >= 5:
+            mode = 1
+        elif hand_queue.count(2) >= 5:
+            mode = 2
+        elif hand_queue.count(3) >= 5:
+            mode = 3
+        elif hand_queue.count(4) >= 5:
+            mode = 4
+        elif hand_queue.count(5) >= 5:
+            mode = 5
 
-        # display the frame with segmented hand
-        cv2.imshow("Video Feed", clone)
+        if mode == 0:
+            # 原圖
+            # draw the segmented hand
+            cv2.rectangle(clone, (left, top), (right, bottom), (0,255,0), 2)
+
+            # increment the number of frames
+            num_frames += 1
+
+            # display the frame with segmented hand
+            cv2.imshow("Video Feed", clone)
+        elif mode == 1:
+            # 灰階
+        elif mode == 2:
+            # 加貼圖  
+        elif mode == 3:
+            # segment
+            # draw the segmented region and display the frame
+            cv2.drawContours(clone, [segmented + (right, top)], -1, (0, 0, 255))
+        elif mode == 4:
+            # hsv
+        elif mode == 5:
+            # 負片 
+        
+        
 
         # observe the keypress by the user
         keypress = cv2.waitKey(1) & 0xFF
