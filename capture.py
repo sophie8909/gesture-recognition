@@ -235,8 +235,8 @@ if __name__ == "__main__":
             # hsv
             pass
         elif mode == 5:
-            # 負片 
-            pass
+            result = 255 - result
+            
         # draw the segmented hand
         cv2.rectangle(clone, (left, top), (right, bottom), (0,255,0), 2)
         # display the frame with segmented hand
