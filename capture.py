@@ -7,7 +7,8 @@ import cv2
 import imutils
 import numpy as np
 from sklearn.metrics import pairwise
-
+import os
+import random
 # global variables
 bg = None
 
@@ -126,6 +127,10 @@ if __name__ == "__main__":
     queue_size = 50
     hand_queue = [0] * queue_size
     mode = 0
+
+    # custom variable for sticker
+    isStickerSet = False
+
     # keep looping, until interrupted
     while(True):
         # get the current frame
@@ -192,12 +197,30 @@ if __name__ == "__main__":
             mode = 5
         # print(mode)
         result = clone.copy()
+        # check for sticker status
+        if mode != 2:
+            isStickerSet = False
+
         if mode == 1:
             # 灰階
             result = cv2.cvtColor(result, cv2.COLOR_BGR2GRAY)
         elif mode == 2:
-            # 加貼圖  
-            pass
+            # 加貼圖
+            sticker_folder = os.path.join(os.path.dirname(__file__), 'sticker')
+            if isStickerSet == False:
+                sticker_filename = random.choice(os.listdir(sticker_folder))
+                isStickerSet = True
+
+            sticker_path = os.path.join(sticker_folder, sticker_filename)
+            sticker = cv2.imread(sticker_path)
+            sticker = cv2.resize(sticker, (150, 150),
+                                 interpolation=cv2.INTER_AREA)
+            # Put the sticker at the right bottom corner
+            x_offset = result.shape[1] - 170
+            y_offset = result.shape[0] - 170
+            x_end = x_offset + sticker.shape[1]
+            y_end = y_offset + sticker.shape[0]
+            result[y_offset:y_end, x_offset:x_end] = sticker
         elif mode == 3:
             # segment
             gray = cv2.cvtColor(clone, cv2.COLOR_BGR2GRAY)
