@@ -4,11 +4,13 @@
 
 # organize imports
 import cv2
+from cv2 import blur
 import imutils
 import numpy as np
 from sklearn.metrics import pairwise
 import os
 import random
+import math
 # global variables
 bg = None
 
@@ -104,7 +106,7 @@ def count(thresholded, segmented):
         if ((cY + (cY * 0.25)) > (y + h)) and ((circumference * 0.25) > c.shape[0]):
             count += 1
 
-    return count
+    return count             
 
 #-----------------
 # MAIN FUNCTION
@@ -222,18 +224,25 @@ if __name__ == "__main__":
             y_end = y_offset + sticker.shape[0]
             result[y_offset:y_end, x_offset:x_end] = sticker
         elif mode == 3:
-            # segment
-            gray = cv2.cvtColor(clone, cv2.COLOR_BGR2GRAY)
-            gray = cv2.GaussianBlur(gray, (7, 7), 0)
-
-
-            # threshold the diff image so that we get the foreground
-            thresholded = cv2.threshold(gray, 50, 255, cv2.THRESH_BINARY)[1]
-
-            result = thresholded    
+            brightness = 0
+            contrast = 100
+            
+            B = brightness / 255.0
+            C = contrast / 255.0
+            K = math.tan((45 + 44 * C) / 180 * math.pi)
+            
+            result = (result - 127.5 * (1 - B)) * K + 127.5 * (1 + B)
+            result = np.clip(result, 0, 255).astype(np.uint8)
+             
         elif mode == 4:
-            # hsv
-            pass
+            
+            gray = cv2.cvtColor(result, cv2.COLOR_BGR2GRAY)
+            inverted = 255 - gray
+            blurred = cv2.GaussianBlur(inverted, (21, 21), 0)
+            inverted_blurred = 255 - blurred
+            result = cv2.divide(gray, inverted_blurred, scale = 256.0)
+            
+            
         elif mode == 5:
             result = 255 - result
             
