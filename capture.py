@@ -184,7 +184,7 @@ if __name__ == "__main__":
                 # draw the segmented region and display the frame
                 cv2.drawContours(clone, [segmented + (right, top)], -1, (0, 0, 255))
                 
-
+                cv2.imshow("thresholded", thresholded)
                 hand_queue[num_frames%queue_size] = fingers
 
 
