@@ -11,6 +11,7 @@ from sklearn.metrics import pairwise
 import os
 import random
 import math
+import fnmatch
 # global variables
 bg = None
 
@@ -210,7 +211,8 @@ if __name__ == "__main__":
             # 加貼圖
             sticker_folder = os.path.join(os.path.dirname(__file__), 'sticker')
             if isStickerSet == False:
-                sticker_filename = random.choice(os.listdir(sticker_folder))
+                sticker_filename = random.choice(
+                    fnmatch.filter(os.listdir(sticker_folder), "*.jpg"))
                 isStickerSet = True
 
             sticker_path = os.path.join(sticker_folder, sticker_filename)
